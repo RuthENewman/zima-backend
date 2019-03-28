@@ -41,7 +41,7 @@ class Api::V1::UsersController < ApplicationController
   def signin
     @user = User.find_by(email: params[:email])
     if @user && @user.authenticate(params[:password])
-      render json: {first_name: @user.first_name, email: @user.email, token: issue_token(@user.id)}
+      render json: {first_name: @user.first_name, email: @user.email, token: issue_token({id: @user.id})}
     else
       render json: {error: 'Email and/or password invalid'}, status: 401
     end
@@ -50,7 +50,7 @@ class Api::V1::UsersController < ApplicationController
   def validate
     @user = get_current_user
     if @user
-      render json: @user
+      render json: { id: @user.id, first_name: @user.first_name, last_name: @user.last_name, email: @user.email }
     else
       render json: {error: 'Email and/or password invalid'}, status: 401
     end
@@ -59,7 +59,7 @@ class Api::V1::UsersController < ApplicationController
   def get_order_history
     @user = get_current_user
     if @user
-      render json: @user.orders
+      render json: @user.orders, each_serializer: OrderSerializer
     else
       render json: {error: 'Not a valid user'}, status: 401
     end
